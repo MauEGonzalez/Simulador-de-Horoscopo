@@ -170,7 +170,8 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
     }
   } else {
     const signoSelect = document.getElementById("signoManual");
-    signo = signoSelect.value;
+    signo = signoSelect.options[signoSelect.selectedIndex].value;
+;
 
     if (!signo || signo === "") {
       document.getElementById("resultado").innerHTML = "<p>Por favor selecciona un signo zodiacal.</p>";
