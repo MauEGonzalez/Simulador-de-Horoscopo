@@ -157,27 +157,26 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
   const modo = document.querySelector('input[name="modo"]:checked').value;
   let signo = "";
 
-  if (modo === "fecha") {
-    const fechaNacimiento = document.getElementById("fechaNacimiento").value;
-    if (!fechaNacimiento) {
-      document.getElementById("resultado").innerHTML = "<p>Por favor ingresa tu fecha de nacimiento.</p>";
-      return;
-    }
-    signo = obtenerSignoPorFecha(fechaNacimiento);
-    if (!signo) {
-      document.getElementById("resultado").innerHTML = "<p>La fecha ingresada no corresponde a ningún signo, intenta de nuevo.</p>";
-      return;
-    }
-  } else {
-    const signoSelect = document.getElementById("signoManual");
-    signo = signoSelect.options[signoSelect.selectedIndex].value;
-;
-
-    if (!signo || signo === "") {
-      document.getElementById("resultado").innerHTML = "<p>Por favor selecciona un signo zodiacal.</p>";
-      return;
-    }
+ if (modo === "fecha") {
+  const fechaNacimiento = document.getElementById("fechaNacimiento").value;
+  if (!fechaNacimiento) {
+    document.getElementById("resultado").innerHTML = "<p>Por favor ingresa tu fecha de nacimiento.</p>";
+    return;
   }
+  signo = obtenerSignoPorFecha(fechaNacimiento);
+  if (!signo) {
+    document.getElementById("resultado").innerHTML = "<p>La fecha ingresada no corresponde a ningún signo, intenta de nuevo.</p>";
+    return;
+  }
+} else {
+  const signoSelect = document.getElementById("signoManual");
+  signo = signoSelect.value.trim();
+
+  if (!signo || signo === "" || !signoSelect.getAttribute("data-selected")) {
+    document.getElementById("resultado").innerHTML = "<p>Por favor selecciona un signo zodiacal antes de consultar.</p>";
+    return;
+  }
+}
 
   // Validación adicional
   if (!signos.includes(signo)) {
