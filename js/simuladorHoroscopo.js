@@ -1,6 +1,8 @@
-// Definición de signos zodiacales
-const signos = ["aries", "tauro", "geminis", "cancer", "leo", "virgo",
-  "libra", "escorpio", "sagitario", "capricornio", "acuario", "piscis"];
+// Array de signos zodiacales
+const signos = [
+  "aries", "tauro", "geminis", "cancer", "leo", "virgo",
+  "libra", "escorpio", "sagitario", "capricornio", "acuario", "piscis"
+];
 
 // Mensajes de horóscopo para cada área
 const horoscopo = {
@@ -82,14 +84,15 @@ const compatibilidad = {
   piscis: ["cancer", "escorpio", "capricornio"]
 };
 
-// Historial de consultas
+// Historial de consultas (se carga o se inicia como arreglo vacío)
 let historialConsultas = [];
 
 // Función para detectar el signo por fecha de nacimiento
 function obtenerSignoPorFecha(fecha) {
-  const mes = parseInt(fecha.split("-")[1]);
-  const dia = parseInt(fecha.split("-")[2]);
-
+  const partes = fecha.split("-");
+  const mes = parseInt(partes[1]);
+  const dia = parseInt(partes[2]);
+  
   if ((mes === 3 && dia >= 21) || (mes === 4 && dia <= 19)) return "aries";
   if ((mes === 4 && dia >= 20) || (mes === 5 && dia <= 20)) return "tauro";
   if ((mes === 5 && dia >= 21) || (mes === 6 && dia <= 20)) return "geminis";
@@ -106,61 +109,118 @@ function obtenerSignoPorFecha(fecha) {
   return null;
 }
 
-// Funciones de interacción con el usuario
-function pedirSigno() {
-  let opcion = confirm("¿Querés ingresar tu fecha de nacimiento en lugar del signo manualmente?");
-  
-  if (opcion) {
-    let fecha = prompt("Ingresá tu fecha de nacimiento en formato YYYY-MM-DD:");
-    let signoDetectado = obtenerSignoPorFecha(fecha);
-    alert(`Tu signo es: ${signoDetectado.toUpperCase()}`);
-    return signoDetectado;
-  } else {
-    let signo = prompt("Ingresá tu signo zodiacal:").toLowerCase();
-    while (!signos.includes(signo)) {
-      signo = prompt("Signo no válido. Por favor ingresá uno correcto:").toLowerCase();
-    }
-    return signo;
-  }
-}
-
-function pedirArea() {
-  let area = prompt("¿Qué querés consultar? (amor / salud / dinero)").toLowerCase();
-  while (!["amor", "salud", "dinero"].includes(area)) {
-    area = prompt("Área no válida. Escribí: amor, salud o dinero").toLowerCase();
-  }
-  return area;
-}
-
-function mostrarHoroscopo(signo, area) {
+// Función para generar el mensaje aleatorio de horóscopo para el signo y área especificados
+function generateHoroscopeMessage(signo, area) {
   const mensajes = horoscopo[signo][area];
-  const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
-  
-  alert(`Horóscopo para ${signo.toUpperCase()} - ${area.toUpperCase()}:\n\n${mensajeAleatorio}`);
+  const indiceAleatorio = Math.floor(Math.random() * mensajes.length);
+  return mensajes[indiceAleatorio];
 }
 
-function mostrarCompatibilidad(signo) {
-  const compatibles = compatibilidad[signo];
-  alert(`Los signos más compatibles con ${signo.toUpperCase()} son: ${compatibles.join(", ").toUpperCase()}`);
+// Función para actualizar la visualización del historial en el DOM
+function updateHistoryDisplay() {
+  const historialList = document.getElementById("historial-list");
+  historialList.innerHTML = "";
+  historialConsultas.forEach(item => {
+    const li = document.createElement("li");
+    li.textContent = `${new Date(item.fechaConsulta).toLocaleDateString()} - ${item.signo.toUpperCase()} (${item.area.toUpperCase()}): ${item.mensaje}`;
+    historialList.appendChild(li);
+  });
 }
 
-function iniciarSimulador() {
-  alert("¡Bienvenido/a al Simulador de Horóscopo!");
-  let continuar = true;
+// Evento para alternar entre modo fecha y modo selección directa de signo
+function toggleModo() {
+  const modoRadios = document.querySelectorAll('input[name="modo"]');
+  modoRadios.forEach(radio => {
+    radio.addEventListener("change", (e) => {
+      if (e.target.value === "fecha") {
+        document.getElementById("fecha-input").style.display = "block";
+        document.getElementById("signo-input").style.display = "none";
+      } else {
+        document.getElementById("fecha-input").style.display = "none";
+        document.getElementById("signo-input").style.display = "block";
+      }
+    });
+  });
+}
 
-  while (continuar) {
-    const signo = pedirSigno();
-    const area = pedirArea();
-    
-    mostrarHoroscopo(signo, area);
-    mostrarCompatibilidad(signo);
-    
-    historialConsultas.push({ signo, area });
-    continuar = confirm("¿Querés consultar otro horóscopo?");
+// Evento para el submit del formulario
+document.getElementById("horoscopo-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+
+  // Determinar el modo de entrada
+  const modo = document.querySelector('input[name="modo"]:checked').value;
+  let signo = "";
+  if (modo === "fecha") {
+    const fechaNacimiento = document.getElementById("fechaNacimiento").value;
+    if (!fechaNacimiento) {
+      document.getElementById("resultado").innerHTML = "<p>Por favor ingresa tu fecha de nacimiento.</p>";
+      return;
+    }
+    signo = obtenerSignoPorFecha(fechaNacimiento);
+    if (!signo) {
+      document.getElementById("resultado").innerHTML = "<p>La fecha ingresada no corresponde a ningún signo, intenta de nuevo.</p>";
+      return;
+    }
+  } else {
+    signo = document.getElementById("signoManual").value;
+    if (!signo) {
+      document.getElementById("resultado").innerHTML = "<p>Por favor, selecciona un signo zodiacal.</p>";
+      return;
+    }
   }
 
-  console.log("Historial de consultas:", historialConsultas);
-  alert("Gracias por usar el simulador. ¡Que tengas un gran día!");
-}
+  // Determinar el área a consultar
+  const area = document.getElementById("area").value;
+  if (!["amor", "salud", "dinero"].includes(area)) {
+    document.getElementById("resultado").innerHTML = "<p>Área inválida. Selecciona amor, salud o dinero.</p>";
+    return;
+  }
 
-// Ejecutar el simulador
+  // Generar y mostrar el mensaje de horóscopo y la compatibilidad
+  const mensaje = generateHoroscopeMessage(signo, area);
+  const compatibles = compatibilidad[signo];
+
+  let resultHTML = `<h2>Horóscopo para ${signo.toUpperCase()} - ${area.toUpperCase()}</h2>`;
+  resultHTML += `<p>${mensaje}</p>`;
+  resultHTML += `<p><strong>Compatibilidad:</strong> ${compatibles.join(", ").toUpperCase()}</p>`;
+  document.getElementById("resultado").innerHTML = resultHTML;
+
+  // Guardar la consulta en el historial
+  const consulta = { signo, area, mensaje, fechaConsulta: new Date() };
+  historialConsultas.push(consulta);
+  localStorage.setItem("historialConsultas", JSON.stringify(historialConsultas));
+  updateHistoryDisplay();
+});
+
+// Al cargar la página
+window.addEventListener("load", function() {
+  // Inicializa el toggle de modo (fecha o selección directa)
+  toggleModo();
+  // Carga el historial de consultas almacenado en localStorage, si existe
+  const storedHistory = localStorage.getItem("historialConsultas");
+  if (storedHistory) {
+    historialConsultas = JSON.parse(storedHistory);
+    updateHistoryDisplay();
+  }
+});
+
+document.getElementById("toggleHistorial").addEventListener("click", function () {
+  const historialDiv = document.getElementById("historial");
+  
+  // Alternar visibilidad
+  if (historialDiv.style.display === "none") {
+    historialDiv.style.display = "block";
+  } else {
+    historialDiv.style.display = "none";
+  }
+});
+
+//  funcion para borrar historial 
+
+document.getElementById("borrarHistorial").addEventListener("click", function () {
+  localStorage.removeItem("historialConsultas"); // Borra del almacenamiento
+  historialConsultas = []; // Vacía el array en la sesión actual
+  updateHistoryDisplay(); // Actualiza la vista del historial
+
+  document.getElementById("historial-list").innerHTML = "<p>Historial vacío.</p>"; // Mensaje de historial vacío
+});

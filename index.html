@@ -2,15 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="stylesheet" href="./css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./css/style.css">
   <title>Simulador de Horóscopo</title>
 </head>
 <body>
   <h1>Simulador de Horóscopo</h1>
-  <p>Este simulador permite consultar predicciones zodiacales diarias sobre amor, salud y dinero desde la consola.</p>
+  <p>Consulta tus predicciones zodiacales diarias sobre amor, salud y dinero.</p>
 
-  <button onclick="iniciarSimulador()">Iniciar Simulador</button>
+  <div id="simulador-container">
+    <form id="horoscopo-form">
+      <fieldset>
+        <legend>Identificación del Signo</legend>
+        <label>
+          <input type="radio" name="modo" value="fecha" checked>
+          Ingresar fecha de nacimiento
+        </label>
+        <label>
+          <input type="radio" name="modo" value="directo">
+          Seleccionar signo manualmente
+        </label>
+      </fieldset>
+
+      <!-- Input para fecha de nacimiento -->
+      <div id="fecha-input">
+        <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+        <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+      </div>
+
+      <!-- Input para seleccionar el signo manualmente -->
+      <div id="signo-input" style="display: none;">
+        <label for="signoManual">Selecciona tu signo:</label>
+        <select id="signoManual" name="signoManual">
+          <option value="">--Selecciona tu signo--</option>
+          <option value="aries">Aries</option>
+          <option value="tauro">Tauro</option>
+          <option value="geminis">Géminis</option>
+          <option value="cancer">Cáncer</option>
+          <option value="leo">Leo</option>
+          <option value="virgo">Virgo</option>
+          <option value="libra">Libra</option>
+          <option value="escorpio">Escorpio</option>
+          <option value="sagitario">Sagitario</option>
+          <option value="capricornio">Capricornio</option>
+          <option value="acuario">Acuario</option>
+          <option value="piscis">Piscis</option>
+        </select>
+      </div>
+
+      <!-- Selección del área a consultar -->
+      <div>
+        <label for="area">Área a Consultar:</label>
+        <select id="area" name="area" required>
+          <option value="">--Selecciona el área--</option>
+          <option value="amor">Amor</option>
+          <option value="salud">Salud</option>
+          <option value="dinero">Dinero</option>
+        </select>
+      </div>
+
+      <button type="submit">Obtener Horóscopo</button>
+    </form>
+  </div>
+
+  <!-- Contenedor para mostrar el resultado del horóscopo -->
+  <div id="resultado"></div>
+
+  <!-- boton de historial -->
+  <button id="toggleHistorial">Historial de Consultas</button>
+
+  <!-- Área para el historial de consultas -->
+  <div id="historial">
+    <h2>Historial de Consultas</h2>
+    <ul id="historial-list"></ul>
+    <button id="borrarHistorial">Borrar Historial</button>
+  </div>
 
   <script src="./js/simuladorHoroscopo.js"></script>
 </body>
