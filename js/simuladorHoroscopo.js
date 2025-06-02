@@ -84,8 +84,9 @@ const compatibilidad = {
   piscis: ["cancer", "escorpio", "capricornio"]
 };
 
-// Historial de consultas (se carga o se inicia como arreglo vacío)
-let historialConsultas = [];
+// Historial de consultas (se carga desde localStorage si existe)
+let historialConsultas = JSON.parse(localStorage.getItem("historialConsultas")) || [];
+
 
 // Función para detectar el signo por fecha de nacimiento
 function obtenerSignoPorFecha(fecha) {
@@ -150,6 +151,7 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
   // Determinar el modo de entrada
   const modo = document.querySelector('input[name="modo"]:checked').value;
   let signo = "";
+
   if (modo === "fecha") {
     const fechaNacimiento = document.getElementById("fechaNacimiento").value;
     if (!fechaNacimiento) {
@@ -163,10 +165,16 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
     }
   } else {
     signo = document.getElementById("signoManual").value;
-    if (!signo) {
-      document.getElementById("resultado").innerHTML = "<p>Por favor, selecciona un signo zodiacal.</p>";
+    if (!signo || signo === "") {
+      document.getElementById("resultado").innerHTML = "<p>Por favor selecciona un signo zodiacal.</p>";
       return;
     }
+  }
+
+  // Validar que el signo manual sea correcto
+  if (!signos.includes(signo)) {
+    document.getElementById("resultado").innerHTML = "<p>El signo ingresado no es válido. Intenta de nuevo.</p>";
+    return;
   }
 
   // Determinar el área a consultar
@@ -176,16 +184,17 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
     return;
   }
 
-  // Generar y mostrar el mensaje de horóscopo y la compatibilidad
+  // Generar y mostrar el mensaje de horóscopo
   const mensaje = generateHoroscopeMessage(signo, area);
   const compatibles = compatibilidad[signo];
 
-  let resultHTML = `<h2>Horóscopo para ${signo.toUpperCase()} - ${area.toUpperCase()}</h2>`;
-  resultHTML += `<p>${mensaje}</p>`;
-  resultHTML += `<p><strong>Compatibilidad:</strong> ${compatibles.join(", ").toUpperCase()}</p>`;
-  document.getElementById("resultado").innerHTML = resultHTML;
+  document.getElementById("resultado").innerHTML = `
+    <h2>Horóscopo para ${signo.toUpperCase()} - ${area.toUpperCase()}</h2>
+    <p>${mensaje}</p>
+    <p><strong>Compatibilidad:</strong> ${compatibles.join(", ").toUpperCase()}</p>
+  `;
 
-  // Guardar la consulta en el historial
+  // Guardar en historial
   const consulta = { signo, area, mensaje, fechaConsulta: new Date() };
   historialConsultas.push(consulta);
   localStorage.setItem("historialConsultas", JSON.stringify(historialConsultas));
@@ -194,9 +203,10 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
 
 // Al cargar la página
 window.addEventListener("load", function() {
-  // Inicializa el toggle de modo (fecha o selección directa)
-  toggleModo();
-  // Carga el historial de consultas almacenado en localStorage, si existe
+  toggleModo(); // Inicializa el modo fecha o selección directa
+  document.getElementById("historial").style.display = "none"; // Ocultar historial al iniciar
+
+  // Cargar historial desde localStorage si existe
   const storedHistory = localStorage.getItem("historialConsultas");
   if (storedHistory) {
     historialConsultas = JSON.parse(storedHistory);
@@ -204,19 +214,13 @@ window.addEventListener("load", function() {
   }
 });
 
+// Evento para mostrar/ocultar historial
 document.getElementById("toggleHistorial").addEventListener("click", function () {
   const historialDiv = document.getElementById("historial");
-  
-  // Alternar visibilidad
-  if (historialDiv.style.display === "none") {
-    historialDiv.style.display = "block";
-  } else {
-    historialDiv.style.display = "none";
-  }
+  historialDiv.style.display = historialDiv.style.display === "none" ? "block" : "none";
 });
 
-//  funcion para borrar historial 
-
+// Evento para borrar historial
 document.getElementById("borrarHistorial").addEventListener("click", function () {
   localStorage.removeItem("historialConsultas"); // Borra del almacenamiento
   historialConsultas = []; // Vacía el array en la sesión actual
