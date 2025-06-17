@@ -110,14 +110,14 @@ function obtenerSignoPorFecha(fecha) {
 }
 
 // Función para generar el mensaje aleatorio de horóscopo para el signo y área especificados
-function generateHoroscopeMessage(signo, area) {
+function generarMensajeHoroscopo(signo, area) {
   const mensajes = horoscopo[signo][area];
   const indiceAleatorio = Math.floor(Math.random() * mensajes.length);
   return mensajes[indiceAleatorio];
 }
 
 // Función para actualizar la visualización del historial en el DOM
-function updateHistoryDisplay() {
+function actualizarHistorial() {
   const historialList = document.getElementById("historial-list");
   historialList.innerHTML = "";
 
@@ -192,7 +192,7 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
   }
 
   // Generar y mostrar el mensaje de horóscopo
-  const mensaje = generateHoroscopeMessage(signo, area);
+  const mensaje = generarMensajeHoroscopo(signo, area);
   const compatibles = compatibilidad[signo];
 
   document.getElementById("resultado").innerHTML = `
