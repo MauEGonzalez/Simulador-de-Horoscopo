@@ -136,17 +136,27 @@ function actualizarHistorial() {
 // Evento para alternar entre modo fecha y modo selección directa de signo
 function toggleModo() {
   const modoRadios = document.querySelectorAll('input[name="modo"]');
+  const fechaInput = document.getElementById("fechaNacimiento");
+  const signoInput = document.getElementById("signoManual");
+
   modoRadios.forEach(radio => {
     radio.addEventListener("change", (e) => {
       if (e.target.value === "fecha") {
         document.getElementById("fecha-input").style.display = "block";
+        fechaInput.disabled = false; // Habilitar input de fecha
         document.getElementById("signo-input").style.display = "none";
+        signoInput.disabled = true; // Deshabilitar input de signo
       } else {
         document.getElementById("fecha-input").style.display = "none";
+        fechaInput.disabled = true; // Deshabilitar input de fecha
         document.getElementById("signo-input").style.display = "block";
+        signoInput.disabled = false; // Habilitar input de signo
       }
     });
   });
+  
+  fechaInput.disabled = false;
+  signoInput.disabled = true;
 }
 
 // Evento para el submit del formulario
@@ -172,7 +182,7 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
   const signoSelect = document.getElementById("signoManual");
   signo = signoSelect.value.trim();
 
-  if (!signo || signo === "" || !signoSelect.getAttribute("data-selected")) {
+  if (!signo) {
     document.getElementById("resultado").innerHTML = "<p>Por favor selecciona un signo zodiacal antes de consultar.</p>";
     return;
   }
@@ -205,7 +215,7 @@ document.getElementById("horoscopo-form").addEventListener("submit", function(ev
   const consulta = { signo, area, mensaje, fechaConsulta: new Date() };
   historialConsultas.push(consulta);
   localStorage.setItem("historialConsultas", JSON.stringify(historialConsultas));
-  updateHistoryDisplay();
+  actualizarHistorial();
 });
 
 // Al cargar la página
@@ -216,7 +226,7 @@ window.addEventListener("load", function() {
   const storedHistory = localStorage.getItem("historialConsultas");
   if (storedHistory) {
     historialConsultas = JSON.parse(storedHistory);
-    updateHistoryDisplay();
+    actualizarHistorial();
   }
 });
 
@@ -230,6 +240,5 @@ document.getElementById("toggleHistorial").addEventListener("click", function ()
 document.getElementById("borrarHistorial").addEventListener("click", function () {
   localStorage.removeItem("historialConsultas");
   historialConsultas = [];
-  updateHistoryDisplay();
-  document.getElementById("historial-list").innerHTML = "<p>Historial vacío.</p>";
+  actualizarHistorial();
 });
